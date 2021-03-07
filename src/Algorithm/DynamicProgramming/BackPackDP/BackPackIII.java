@@ -59,7 +59,7 @@ public class BackPackIII {
         }
         int[] dp = new int[m + 1];
         dp[0] = 0;
-        for(int i = 0; i <= A.length; i++){
+        for(int i = 0; i < A.length; i++){
             for(int j = 1; j <= m; j++){
                 dp[j] = Math.max(dp[j], j >= A[i] ? dp[j - A[i]] + V[i] : 0);
             }

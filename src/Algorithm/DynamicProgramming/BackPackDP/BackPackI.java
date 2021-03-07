@@ -77,7 +77,7 @@ public class BackPackI {
         int res = target;
         for(int i = index; i < A.length; i++){
             if(target - A[i] >= 0){
-                res = dfs(target - A[i], A, i, visited, memory);
+                res = dfs(target - A[i], A, i + 1, visited, memory);
             }
         }
         visited[target] = true;

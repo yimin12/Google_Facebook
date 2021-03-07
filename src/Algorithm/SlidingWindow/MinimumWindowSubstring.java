@@ -27,7 +27,7 @@ public class MinimumWindowSubstring {
         int slow = 0, fast = 0, minLen = Integer.MAX_VALUE, matchCount = 0, start = 0;
         for(; fast < target.length(); fast++){
             char c = target.charAt(fast);
-            Integer count = diction.getOrDefault(fast, 0);
+            Integer count = diction.getOrDefault(c, 0);
             if(count == 0){
                 continue;
             } else if(count == 1){

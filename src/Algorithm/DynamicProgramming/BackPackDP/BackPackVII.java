@@ -41,19 +41,17 @@ public class BackPackVII {
         return dp[len][m];
     }
     // for for all possible situations, and rolling array
-    public int boundedBackPackI(int[] prices, int[] weight, int[] amounts, int m){
-        if(prices == null || weight == null || amounts == null || prices.length * weight.length * amounts.length == 0) {
-            return 0;
-        }
-        int len = prices.length;
-        int[] dp = new int[len + 1];
-        for(int i = 1; i <= len; i++){
-            for(int j = 1; j <= amounts[i]; j++){
-                for(int k = m; k >= prices[i]; k--){
-                    dp[k] = Math.max(dp[k], dp[k - prices[i]] + weight[i]);
+    public int backPackVII(int n, int[] prices, int[] weight, int[] amounts) {
+        // write your code here
+        int m = prices.length;
+        int[] f = new int[n + 1];
+        for(int i = 0;i < m;i++){
+            for(int j = 1;j <= amounts[i];j++){
+                for(int k = n;k >= prices[i];k--){
+                    f[k] = Math.max(f[k], f[k - prices[i]] + weight[i]);
                 }
             }
         }
-        return dp[m];
+        return f[n];
     }
 }
