@@ -116,24 +116,4 @@ public class SlidingWindowMaximum {
         return res;
     }
 
-    // Official one
-    public List<Integer> maxWindows(int[] array, int k){
-        List<Integer> max = new ArrayList<>();
-        Deque<Integer> deque = new LinkedList<>();
-        for(int i = 0; i < array.length; i++){
-            // step1: push the largest value to the head of deque
-            while(!deque.isEmpty() && array[i] >= array[deque.peekLast()]){
-                deque.pollLast();
-            }
-            // step2: remove the first element when the boundary is exceeded
-            while(!deque.isEmpty() && deque.peekFirst() <= i - k +1){
-                deque.pollFirst();
-            }
-            deque.offerLast(i);
-            if(i >= k - 1){
-                max.add(deque.peekFirst());
-            }
-        }
-        return max;
-    }
 }

@@ -499,36 +499,48 @@ public class Bloomberg {
     }
 
     // ------------------------------------------------------------------wordBreak
-    public ArrayList<String> wordBreak(String s, Set<String> dict) {
-        // Note: The Solution object is instantiated only once and is reused by each test case.
-        Map<String, ArrayList<String>> memo = new HashMap<String, ArrayList<String>>();
-        return wordBreakHelper(s, dict, memo);
+    public List<String> wordBreak(String s, List<String> wordDict) {
+        // memory search
+        List<String> res = new ArrayList<>();
+        if(s == null || s.length() == 0 || wordDict == null){
+            return res;
+        }
+        Set<String> set = toSet(wordDict);
+        Map<String, List<String>> memo = new HashMap<>();
+        return wordBreakHelper(memo, s, set);
     }
 
-    public ArrayList<String> wordBreakHelper(String s, Set<String> dict, Map<String, ArrayList<String>> memo){
-        if (memo.containsKey(s)) {
+    // each possibilities should only be traversed once, just calculate how many possibilities.
+    // O(n^2)
+    private List<String> wordBreakHelper(Map<String, List<String>> memo, String s, Set<String> set){
+        if(memo.containsKey(s)){
             return memo.get(s);
         }
-        ArrayList<String> results = new ArrayList<String>();
-        if (s.length() == 0) {
-            return results;
+        List<String> res = new ArrayList<>();
+        if(set.contains(s)){ // base case, contain the entire string
+            res.add(s);
         }
-        if (dict.contains(s)) {
-            results.add(s);
-        }
-        for (int len = 1; len < s.length(); ++len){
-            String word = s.substring(0, len);
-            if (!dict.contains(word)) {
-                continue;
-            }
-            String suffix = s.substring(len);
-            ArrayList<String> segmentations = wordBreakHelper(suffix, dict, memo);
-            for (String segmentation: segmentations){
-                results.add(word + " " + segmentation);
+        // try to split the given string
+        for(int i = 1; i < s.length(); i ++){
+            // contains break or not break
+            String prefix = s.substring(0, i); // O(n)
+            if(set.contains(prefix)){
+                String suffix = s.substring(i, s.length());
+                for(String su : wordBreakHelper(memo, suffix, set)){
+                    res.add(prefix + " " + su);
+                }
             }
         }
-        memo.put(s, results);
-        return results;
+        memo.put(s, res);
+        return res;
+    }
+
+    private Set<String> toSet(List<String> words){
+        Set<String> set = new HashSet<>();
+        for(String s : words){
+            set.add(s);
+        }
+        return set;
     }
 
     // ------------------------------------------------------------------climbStairs
@@ -735,7 +747,7 @@ class LRUCache<K, V> {
     private Node<K, V> append(Node<K, V> node) {
         map.put(node.key, node);
         if(head == null) {
-            head = node;
+            head = tail = node;
         } else {
             node.next = head;
             head.prev = node;

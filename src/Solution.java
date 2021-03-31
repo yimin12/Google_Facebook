@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /*
  *   @Author : Yimin Huang
@@ -90,6 +88,37 @@ public class Solution {
         // rightIndex is already in their position
     }
 
+
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        if(nums == null || nums.length == 0){
+            return res;
+        }
+        for(int i = 0; i < nums.length - 2; i ++){
+            List<List<Integer>> cur = twoSum(nums, i+1, nums.length - 1, -nums[i]);
+            for(int j = 0; j < cur.size(); j ++){
+                cur.get(j).add(nums[i]);
+                Collections.sort(cur.get(j));
+            }
+        }
+        return res;
+    }
+
+    public List<List<Integer>> twoSum(int[] nums, int left, int right, int target){
+        // because it is unsorted
+        List<List<Integer>> res = new ArrayList<>();
+        Set<Integer> set = new HashSet<>();
+        for(int i = left; i <= right; i ++){
+            if(set.contains(target - nums[i])){
+                List<Integer> cur = new ArrayList<>();
+                cur.add(nums[i]);
+                cur.add(target - nums[i]);
+                res.add(cur);
+            }
+            set.add(nums[i]);
+        }
+        return res;
+    }
 
     public static void main(String[] args) {
         Solution s = new Solution();

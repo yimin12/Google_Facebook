@@ -26,38 +26,42 @@ public class MergeKSortedList {
     // Ignore the brute force, sort two list in a time, total cost O(n^2) time
     // Divide And Conquer or merge it two by two -> O(nlogn)
     // Method 1: Divide and conquer
-    public ListNode mergeKLists(List<ListNode> lists){
-        if(lists.size() == 0){
+    public ListNode mergeKLists(ListNode[] lists) {
+        if(lists.length == 0){
             return null;
         }
-        return mergeKLists(lists, 0, lists.size() - 1);
+        return mergeksorted(lists, 0, lists.length - 1);
     }
-    private ListNode mergeKLists(List<ListNode> lists, int left, int right){
+
+    private ListNode mergeksorted(ListNode[] lists, int left, int right){
         if(left == right){
-            return lists.get(left);
+            return lists[left];
         }
-        // Divide
-        int mid = left + (left + right) >> 2;
-        ListNode leftPart = mergeKLists(lists, left, mid);
-        ListNode rightPart = mergeKLists(lists, mid +1, right);
-        // Conquer
-        return mergeTwoList(leftPart, rightPart);
+        int mid = left + ((right - left) >> 1);
+        ListNode left_node = mergeksorted(lists, left, mid);
+        ListNode right_node = mergeksorted(lists, mid + 1, right);
+        return merge(left_node, right_node);
     }
-    private ListNode mergeTwoList(ListNode left, ListNode right){
+
+    // merge two sorted list
+    private ListNode merge(ListNode left, ListNode right){
         ListNode dummy = new ListNode(0);
         ListNode tail = dummy;
         while(left != null && right != null){
             if(left.value < right.value){
                 tail.next = left;
+                tail = tail.next;
                 left = left.next;
             } else {
-                tail.next = right.next;
+                tail.next = right;
+                tail = tail.next;
+                right = right.next;
             }
         }
-        if(left.next != null){
+        if(left != null){
             tail.next = left;
         }
-        if(right.next != null){
+        if(right != null){
             tail.next = right;
         }
         return dummy.next;

@@ -19,51 +19,52 @@ import java.util.Map;
  */
 public class MinimumWindowSubstring {
 
-    public String minWindow(String target, String pattern){
-        if(target == null || pattern == null || target.length() < pattern.length()){
-            return "";
-        }
-        Map<Character, Integer> diction = constructDict(pattern);
-        int slow = 0, fast = 0, minLen = Integer.MAX_VALUE, matchCount = 0, start = 0;
-        for(; fast < target.length(); fast++){
-            char c = target.charAt(fast);
-            Integer count = diction.getOrDefault(c, 0);
-            if(count == 0){
+    public String minWindow(String s, String t) {
+        if(s == null || t == null || t.length() == 0 || s.length() < t.length()) return "";
+        Map<Character, Integer> map = toMap(t);
+        int slow = 0, fast, resLen = Integer.MAX_VALUE, start = 0, matchCount = 0;
+        for(fast = 0; fast < s.length(); fast ++){
+            char c = s.charAt(fast);
+            Integer count = map.get(c);
+            if(count == null){
                 continue;
             } else if(count == 1){
-                matchCount++;
-                diction.put(c, count-1);
+                map.put(c, count - 1);
+                matchCount ++;
             } else {
-                diction.put(c, count-1);
+                map.put(c, count - 1);
             }
-            while(matchCount == diction.size()){
-                c = target.charAt(slow);
-                count = diction.get(c);
-                if(count == null){
-                    slow++;
-                } else if(count < 0){
-                    slow++;
-                    diction.put(c, count + 1);
+            while(matchCount == map.size()){
+                c = s.charAt(slow);
+                count = map.get(c);
+                if(count == null) {
+                    // do nothing
+                } else if (count < 0){
+                    map.put(c, count + 1);
                 } else if(count == 0){
-                    diction.put(c, count + 1);
-                    matchCount--;
-                    if(minLen > fast - slow + 1){
-                        minLen = fast - slow + 1;
+                    map.put(c, count + 1);
+                    matchCount --;
+                    if(resLen > fast - slow){
+                        resLen = fast - slow + 1;
                         start = slow;
                     }
                 }
+                slow ++;
             }
         }
-        return target.substring(start, start + minLen);
+        if(resLen == Integer.MAX_VALUE) return "";
+        return s.substring(start, start + resLen);
+
     }
-    private Map<Character, Integer> constructDict(String pattern) {
-        HashMap<Character, Integer> map = new HashMap<Character, Integer>();
-        for(char c : pattern.toCharArray()){
-            map.putIfAbsent(c, 0);
-            map.put(c, map.get(c) +1);
+
+    private Map<Character, Integer> toMap(String t){
+        Map<Character, Integer> map = new HashMap<>();
+        for(char c : t.toCharArray()){
+            map.put(c, map.getOrDefault(c, 0) + 1);
         }
         return map;
     }
+
     // FollowUp 2: You are given a string, S, and a list of words, L, that are all of the same length.
     // Find all starting indices of substring(s) in S that is a concatenation of each word in L exactly once and
     // without any intervening characters.

@@ -33,32 +33,25 @@ public class LongestIncreasingSubsequence {
     }
 
     // Method 2: O(nlogn) to record ascending array
-    public int longestII(int[] array){
-        if(array.length == 0) return 0;
-        int[] asc = new int[array.length];
-        int result = 1;
-        asc[1] = array[0];
-        for(int i = 1; i < array.length; i++){
-            int index = find(asc, 1, result, array[i]);
-            // case 1:
-            if(index == result){
-                asc[++result] = array[i];
-            } else{
-                asc[index++] = array[i];
-            }
+    public int lengthOfLIS(int[] nums) {
+        if(nums == null || nums.length == 0){
+            return 0;
         }
-        return result;
-    }
-
-    private int find(int[] asc, int left, int right, int target){
-        while(left <= right){
-            int mid = left + (right - left)/2;
-            if(asc[mid] >= target){
-                right = mid -1;
-            } else {
-                left = mid + 1;
+        int[] f = new int[nums.length];
+        int res = 0;
+        for(int x : nums){
+            int i = 0, j = res;
+            while(i != j){
+                int mid = i + ((j -  i) >> 1);
+                if(f[mid] < x){ // find the smallest larger
+                    i = mid + 1;
+                } else {
+                    j = mid;
+                }
             }
+            f[i] = x;
+            if(i == res) res ++;
         }
-        return right;
+        return res;
     }
 }

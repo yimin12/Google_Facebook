@@ -20,35 +20,37 @@ import java.util.PriorityQueue;
  */
 public class MedianTracker {
 
-    private PriorityQueue<Integer> smallHalf;
-    private PriorityQueue<Integer> largeHalf;
-    public MedianTracker(){
-        smallHalf = new PriorityQueue<>(Collections.reverseOrder());
-        largeHalf = new PriorityQueue<>();
+    PriorityQueue<Integer> maxHeap;
+    PriorityQueue<Integer> minHeap;
+    int count;
+
+    /** initialize your data structure here. */
+    public MedianTracker() {
+        // store smaller half
+        maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+        // store larger half
+        minHeap = new PriorityQueue<>();
+        count = 0;
     }
-    public void read(int value){
-        if(smallHalf.isEmpty() || value <= smallHalf.peek()){
-            smallHalf.offer(value);
+
+    public void addNum(int num) {
+        count ++;
+        if(maxHeap.isEmpty() || num <= maxHeap.peek()){
+            maxHeap.offer(num);
         } else {
-            largeHalf.offer(value);
+            minHeap.offer(num);
         }
-        if(smallHalf.size() - largeHalf.size() > 1){
-            largeHalf.offer(smallHalf.poll());
-        }  else if(largeHalf.size() > smallHalf.size()){
-            smallHalf.offer(largeHalf.poll());
-        }
-    }
-    public Double median(){
-        int size = size();
-        if(size == 0){
-            return null;
-        } else if(size % 2 == 0){
-            return (double)(smallHalf.peek());
-        } else {
-            return (smallHalf.peek() + largeHalf.peek())/2.0;
+        if(maxHeap.size() - minHeap.size() > 1){
+            minHeap.offer(maxHeap.poll());
+        } else if(minHeap.size() > maxHeap.size()){
+            maxHeap.offer(minHeap.poll());
         }
     }
-    private int size(){
-        return smallHalf.size() + largeHalf.size();
+
+    public double findMedian() {
+        if(count % 2 == 0){
+            return (maxHeap.peek() + minHeap.peek())/2.0;
+        }
+        return maxHeap.peek();
     }
 }

@@ -19,7 +19,7 @@ public class Subject {
     }
 
     public void removeObserver(Observer observer){
-        list.add(observer);
+        list.remove(observer);
     }
 
     public void notifyAllObservers(){
