@@ -12,48 +12,46 @@ import java.util.LinkedList;
  */
 public class MaximalRectangle {
 
-    public static int maxRecSize(int[][] board){
-        if(board == null || board.length == 0 || board[0].length == 0){
-            return 0;
-        }
-        int maxArea = 0;
-        int[] height = new int[board[0].length];
-        for(int i = 0; i < board.length; i ++){
-            for(int j = 0; j < board[0].length; j ++){
-                height[j] = board[i][j] == 0 ? 0 : height[j] + 1;
+    public static int maximalRectangle(int[][] matrix) {
+        if(matrix == null || matrix.length == 0 || matrix[0].length == 0) return 0;
+        int res = 0;
+        int m = matrix.length, n = matrix[0].length;
+        int[] height = new int[n];
+        for(int i = 0; i < m; i ++){
+            for(int j = 0; j < n; j ++){
+                height[j] = matrix[i][j] == 0 ? 0 : height[j] + 1;
             }
-            maxArea = Math.max(maxRecFromBottom(height), maxArea);
+            // calculate the maximum histogram
+            res = Math.max(cal(height), res);
         }
-        return maxArea;
+        return res;
     }
 
-    public static int maxRecFromBottom(int[] height){
-        if(height == null || height.length == 0){
-            return 0;
-        }
-        int maxArea = 0;
-        Deque<Integer> stack = new LinkedList<Integer>();
+    // calculate the maximum histogram
+    private static int cal(int[] height){
+        int res = 0;
+        Deque<Integer> stack = new LinkedList<>();
         for(int i = 0; i < height.length; i ++){
             while(!stack.isEmpty() && height[i] <= height[stack.peekLast()]){
                 int j = stack.pollLast();
                 int k = stack.isEmpty() ? -1 : stack.peekLast();
-                int curArea = (i - k - 1) * height[j];
-                maxArea = Math.max(maxArea, curArea);
+                int cur = (i - k - 1) * height[j];
+                res = Math.max(res, cur);
             }
             stack.offerLast(i);
         }
         while(!stack.isEmpty()){
             int j = stack.pollLast();
-            int k = stack.isEmpty() ? -1 : stack.peekLast();
-            int cur = (height.length - 1 - k) * height[j];
-            maxArea = Math.max(cur, maxArea);
+            int k = stack.isEmpty() ? - 1 : stack.peekLast();
+            int cur = (height.length - k - 1) * height[j];
+            res = Math.max(res, cur);
         }
-        return maxArea;
+        return res;
     }
 
 
     public static void main(String[] args) {
-        int[][] map = { { 1, 0, 1, 1 }, { 1, 1, 1, 1 }, { 1, 1, 1, 0 }, };
-        System.out.println(maxRecSize(map));
+        int[][] map = { { 1, 0, 1, 0, 0 }, { 1, 0, 1, 1, 1 }, { 1, 1, 1, 1, 1 }, {1, 0, 0, 1, 0} };
+        System.out.println(maximalRectangle(map));
     }
 }

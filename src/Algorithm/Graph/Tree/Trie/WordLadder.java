@@ -200,51 +200,45 @@ public class WordLadder {
     }
 
     // Simplify Bi-Direction BFS
-    public int ladderLengthII(String start, String end, List<String> dict){
-        if(dict == null){
-            return 0;
-        }
-        if(start.equals(end)){
-            return 0;
-        }
-        Set<String> set= new HashSet<>();
-        for(String str:dict){
-            set.add(str);
-        }
-        if(start == null || end == null || dict.size() == 0){
-            return 0;
-        }
+    public int ladderLength(String start, String end, List<String> wordList) {
+        if(start == null || end == null || wordList == null || wordList.size() == 0) return 0;
+        Set<String> dict = new HashSet<>(wordList);
+        // bi-directional bfs
+        Set<String> fromSet = new HashSet<String>(), endSet = new HashSet<String>();
+        int len = 1, strLen = start.length();
         Set<String> visited = new HashSet<>();
-        Set<String> oppovisited = new HashSet<>();
-        visited.add(start);
-        oppovisited.add(end);
-        set.remove(end);
-        int step = 1;
-        while(!visited.isEmpty() && !oppovisited.isEmpty()){
-            Set<String> next = new HashSet<>();
-            if(visited.size() > oppovisited.size()){
-                // swap
-                Set<String> temp = visited;
-                visited = oppovisited;
-                oppovisited = temp;
+        fromSet.add(start);
+        endSet.add(end);
+
+        while(!fromSet.isEmpty() && !endSet.isEmpty()){
+            if(fromSet.size() > endSet.size()){
+                // swap the from and end
+                Set<String> set = fromSet;
+                fromSet = endSet;
+                endSet = set;
             }
-            for(String str:visited){
-                char[] word = str.toCharArray();
-                for(int i = 0; i < word.length; i++){
-                    char old_char = word[i];
-                    for(char c = 'a'; c < 'z'; c++){
-                        word[i] = c;
-                        String cur = new String(word);
-                        if(oppovisited.contains(cur)) return step+1;
-                        if(set.contains(cur)){
-                            next.add(cur);
-                            set.remove(cur);
+            Set<String> temp = new HashSet<String>();
+            for(String word : fromSet){ // guarantee the fromSet contains less value than endSet
+                char[] array = word.toCharArray();
+                for(int i = 0; i < array.length; i ++){
+                    for(char c = 'a' ; c <= 'z';  c++){
+                        char old = array[i];
+                        array[i] = c;
+                        String target = new String(array);
+                        // System.out.println(dict.contains(target));
+                        if(endSet.contains(target) && dict.contains(end)){
+                            return len + 1;
                         }
+                        if(!visited.contains(target) && dict.contains(target)){
+                            temp.add(target);
+                            visited.add(target);
+                        }
+                        array[i] = old; // reset;
                     }
                 }
             }
-            visited = next;
-            step++;
+            fromSet = temp;
+            len ++;
         }
         return 0;
     }

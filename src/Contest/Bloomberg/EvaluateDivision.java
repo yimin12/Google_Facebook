@@ -1,4 +1,4 @@
-package Algorithm.Graph;
+package Contest.Bloomberg;
 
 import java.util.*;
 

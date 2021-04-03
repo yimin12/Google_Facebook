@@ -38,17 +38,14 @@ public class CoinChange {
     // Induction rule : dp[i][j] = dp[i-1][j] + dp[i][j-coins[i-1]]
     // base case : dp[0][0] = 1, d[0][1....m] = 0
     // Time: O(n*m) time, Space: O(n*m) extra space
-    public int fasterChange(int amount, int[] coins){
-        if(coins == null || coins.length == 0){
-            return -1;
-        }
-        int[][] dp = new int[coins.length + 1][amount + 1];
-        for(int i = 0; i <= coins.length; i++){
-            for(int j = 0; i <= amount; j++){
-                if(i == 0 && j == 0){
-                    dp[i][j] = 0;
-                }
-                dp[i][j] = dp[i - 1][j] + (coins[i-1] <= j ? dp[i][j - coins[i-1]] : 0);
+    public int rollingChange(int amount, int[] coins) {
+        int[][] dp = new int[coins.length+1][amount+1];
+        dp[0][0] = 1;
+
+        for (int i = 1; i <= coins.length; i++) {
+            dp[i][0] = 1;
+            for (int j = 1; j <= amount; j++) {
+                dp[i][j] = dp[i-1][j] + (j >= coins[i-1] ? dp[i][j-coins[i-1]] : 0);
             }
         }
         return dp[coins.length][amount];
@@ -57,17 +54,12 @@ public class CoinChange {
     // rolling array
     // Invariant: g[k] = f[i][k]   if k < j or   g[i-1][k] if k >= j, j is the current amount
     // Time: O(n*m) time, Space: O(m) extra space
-    public int rollingArrayChange(int amount, int[] coins){
-        if(coins == null || amount < 0){
-            return -1;
-        }
+    public int change(int amount, int[] coins) {
         int[] dp = new int[amount + 1];
         dp[0] = 1;
-        for(int i = 1; i < coins.length; i++){
-            for(int j = 0; j <= amount; j++){
-                if(coins[i-1] <= j){
-                    dp[j] += dp[j - coins[i-1]];
-                }
+        for (int coin : coins) {
+            for (int i = coin; i <= amount; i++) {
+                dp[i] += dp[i-coin];
             }
         }
         return dp[amount];

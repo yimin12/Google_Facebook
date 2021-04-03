@@ -11,55 +11,38 @@ import java.util.*;
  */
 public class Solution {
 
-    public String minWindow(String s, String t) {
-        if(s == null || t == null || t.length() == 0 || s.length() < t.length()) return "";
-        Map<Character, Integer> map = toMap(t);
-        int slow = 0, fast, resLen = Integer.MAX_VALUE, start = 0, matchCount = 0;
-        for(fast = 0; fast < s.length(); fast ++){
-            char c = s.charAt(fast);
-            Integer count = map.get(c);
-            if(count == null){
+    public int findShortestSubArray(int[] nums) {
+        if(nums == null || nums.length == 0){
+            return 0;
+        }
+        Map<Integer, Integer> map = new HashMap<>();
+        Map<Integer, Integer> freq =  new HashMap<>();
+        int min = Integer.MAX_VALUE, degree = 1;
+        for(int i = 0; i < nums.length; i ++){
+            map.putIfAbsent(nums[i], i); // record the first time apperance
+            freq.putIfAbsent(nums[i], 1);
+            if(map.get(nums[i]) == i){
                 continue;
-            } else if(count == 1){
-                map.put(c, count - 1);
-                matchCount ++;
             } else {
-                map.put(c, count - 1);
-            }
-            while(matchCount == map.size()){
-                c = s.charAt(slow);
-                count = map.get(c);
-                if(count == null) {
-
-                } else if (count < 0){
-                    map.put(c, count + 1);
-                } else if(count == 0){
-                    map.put(c, count + 1);
-                    matchCount --;
-                    if(resLen > fast - slow){
-                        resLen = fast - slow + 1;
-                        start = slow;
-                    }
+                if(freq.get(nums[i]) == degree){
+                    min = Math.min(min, i - map.get(nums[i]));
                 }
-                slow ++;
+                freq.put(nums[i], freq.get(nums[i]) + 1);
+                degree = Math.max(degree, freq.get(nums[i]));
             }
         }
-        return s.substring(start, start + resLen);
-
+        return min;
     }
 
-    private Map<Character, Integer> toMap(String t){
-        Map<Character, Integer> map = new HashMap<>();
-        for(char c : t.toCharArray()){
-            map.put(c, map.getOrDefault(c, 0) + 1);
-        }
-        return map;
-    }
+
 
     public static void main(String[] args) {
         Solution solution = new Solution();
-        String s = solution.minWindow("ADOBECODEBANC", "ABC");
-        System.out.println(s);
+        int res = solution.findShortestSubArray(new int[]{1,2,2,3,1});
+        System.out.println(res);
+//        Arrays.stream(res).forEach(value -> {
+//            System.out.print(value + " ");
+//        });
     }
 
 

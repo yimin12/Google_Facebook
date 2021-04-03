@@ -220,35 +220,33 @@ public class Bloomberg {
     // -----------------------------------------------------------------------------------decodeString
     public String decodeString(String s) {
         if(s == null || s.length() == 0) return "";
-        Deque<Object> stack = new LinkedList<>();
+        Deque<Character> stack = new LinkedList<>();
+        for(int i = 0; i < s.length(); i ++){
+            char c = s.charAt(i);
+            stack.offerLast(c);
+        }
+        return dfsI(stack);
+    }
+
+    private String dfsI(Deque<Character> stack){
+        StringBuilder sb = new StringBuilder();
         int num = 0;
-        for(char c : s.toCharArray()){
+        while(!stack.isEmpty()){
+            char c = stack.pollFirst();
             if(Character.isDigit(c)){
                 num = num * 10 + c - '0';
             } else if(c == '['){
-                stack.push(Integer.valueOf(num));
+                String s = dfsI(stack);
+                for(int i = 0; i < num; i ++){
+                    sb.append(s);
+                }
                 num = 0;
             } else if(c == ']'){
-                String newStr = popStack(stack);
-                Integer count = (Integer) stack.pop();
-                for(int i = 0; i < count; i ++){
-                    stack.push(newStr);
-                }
+                break; // just return;
             } else {
-                stack.push(String.valueOf(c));
+                sb.append(c);
             }
-        }
-        return popStack(stack);
-    }
 
-    private String popStack(Deque<Object> stack){
-        Deque<String> buffer = new LinkedList<>();
-        while(!stack.isEmpty() && (stack.peek() instanceof String)){
-            buffer.push((String) stack.pop());
-        }
-        StringBuilder sb = new StringBuilder();
-        while(!buffer.isEmpty()){
-            sb.append(buffer.pop());
         }
         return sb.toString();
     }
@@ -660,7 +658,7 @@ public class Bloomberg {
         return sb.toString();
     }
 
-    //
+    // ------------------------------------------------------------------numDupDigitsAtMostN
     public int numDupDigitsAtMostN(int N) {
         int count=0;
         for(int i=0;i<=N;i++) {
@@ -675,6 +673,69 @@ public class Bloomberg {
 
         }
         return count;
+    }
+
+    // ------------------------------------------------------------------Remove duplicate letters
+    public String removeDuplicateLetters(String s) {
+        if(s == null || s.length() == 0) return "";
+        int[] res = new int[26];
+        boolean[] visited = new boolean[26];
+        char[] ch = s.toCharArray();
+        for(char c : s.toCharArray()){
+            res[c - 'a'] ++;
+        }
+        Deque<Character> stack = new LinkedList<>();
+        int i;
+        for(char c : ch){
+            i = c - 'a';
+            res[i] --;
+            if(visited[i]){
+                continue;
+            }
+            while(!stack.isEmpty() && c < stack.peek() && res[stack.peek() - 'a'] != 0){
+                visited[stack.pop() - 'a'] = false;
+            }
+            stack.push(c);
+            visited[i] = true;
+        }
+        StringBuilder sb = new StringBuilder();
+        while(!stack.isEmpty()){
+            sb.insert(0, stack.pop());
+        }
+        return sb.toString();
+    }
+
+    // ------------------------------------------------------------------Interval sections
+    public int[][] intervalIntersection(int[][] a, int[][] b) {
+        ArrayList<int[]> result = new ArrayList<>();
+        int n = a.length;
+        int m = b.length;
+        int i = 0;
+        int j = 0;
+        int left;int right;
+        while(i < n && j < m){
+            int low = Math.max(a[i][0],b[j][0]);
+            int high = Math.min(a[i][1],b[j][1]);
+            if(low <= high){
+                result.add(new int[]{low,high});
+            }
+            if(a[i][1] < b[j][1]){
+                i++;
+            }else{
+                j++;
+            }
+        }
+        return result.toArray(new int[result.size()][]);
+    }
+
+    // ------------------------------------------------------------------ Sum of Nodes with Even-Valued Grandparent
+    public int sumEvenGrandparent(TreeNode root) {
+        if(root == null) return 0;
+        return dfs(root, 1, 1);
+    }
+    private int dfs(TreeNode root, int parent, int grandparent){
+        if(root == null) return 0;
+        return dfs(root.left, root.val, parent) + dfs(root.right, root.val, parent) + (grandparent % 2 == 0 ? root.val : 0);
     }
 }
 
