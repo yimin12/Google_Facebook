@@ -705,6 +705,18 @@ public class Bloomberg {
         return sb.toString();
     }
 
+    // ------------------------------------------------------------------Remove duplicate letters with specific k adjacent
+    public String removeDuplicates(String s, int k) {
+        int i = 0, n = s.length(), count[] = new int[n];
+        char[] stack = s.toCharArray();
+        for (int j = 0; j < n; ++j, ++i) {
+            stack[i] = stack[j];
+            count[i] = i > 0 && stack[i - 1] == stack[j] ? count[i - 1] + 1 : 1;
+            if (count[i] == k) i -= k;
+        }
+        return new String(stack, 0, i);
+    }
+
     // ------------------------------------------------------------------Interval sections
     public int[][] intervalIntersection(int[][] a, int[][] b) {
         ArrayList<int[]> result = new ArrayList<>();
@@ -737,6 +749,28 @@ public class Bloomberg {
         if(root == null) return 0;
         return dfs(root.left, root.val, parent) + dfs(root.right, root.val, parent) + (grandparent % 2 == 0 ? root.val : 0);
     }
+
+    // ------------------------------------------------------------------ Missing element in sorted array
+    public int missingElement(int[] nums, int k) {
+        int left = 0, right = nums.length - 1;
+        int missing = nums[right] - nums[left] - (right - left);
+        if (k > missing) {
+            return nums[right] + k - missing;
+        }
+        while (left < right - 1) {
+            int mid = left + (right - left) / 2;
+            missing = nums[mid] - nums[left] - (mid - left);
+            if (k > missing) {
+                k -= missing;
+                left = mid;
+            }
+            else {
+                right = mid;
+            }
+        }
+        return nums[left] + k;
+    }
+
 }
 
 
@@ -841,55 +875,52 @@ class LRUCache<K, V> {
 
 // -----------------------------------------------------------------------------------Leaderboard
 class Leaderboard {
-    Map<Integer, Integer> map; // id : score
-    TreeMap<Integer, Integer> sorted; // score:freq of score
+    Map<Integer, Player> players;
+    TreeSet<Player> scores;
     public Leaderboard() {
-        map = new HashMap<>();
-        sorted = new TreeMap<>(Collections.reverseOrder());
+        players = new HashMap<>();
+        scores = new TreeSet<Player>((a, b) ->{
+            return b.score == a.score ? a.id - b.id : b.score - a.score;
+        });
     }
-
+    // Log(n) time
     public void addScore(int playerId, int score) {
-        if (!map.containsKey(playerId)) {
-            map.put(playerId, score);
-            sorted.put(score, sorted.getOrDefault(score, 0) + 1);
+        Player cur;
+        if(players.containsKey(playerId)){
+            cur = players.get(playerId);
+            scores.remove(cur);
+            cur.score += score;
+            scores.add(cur);
         } else {
-            int preScore = map.get(playerId);
-            sorted.put(preScore, sorted.get(preScore) - 1);
-            if (sorted.get(preScore) == 0) {
-                sorted.remove(preScore);
-            }
-            int newScore = preScore + score;
-            map.put(playerId, newScore);
-            sorted.put(newScore, sorted.getOrDefault(newScore, 0) + 1);
+            cur = new Player(playerId, score);
+            players.put(playerId, cur);
+            scores.add(cur);
         }
     }
 
+    // O(K) to iterate the tree map
     public int top(int K) {
-        int count = 0;
-        int sum = 0;
-        for (int key : sorted.keySet()) {
-            int times = sorted.get(key);
-            for (int i = 0; i < times; i++) {
-                sum += key;
-                count++;
-                if (count == K) {
-                    break;
-                }
-            }
-            if (count == K) {
-                break;
-            }
+        Iterator<Player> iterator = scores.iterator();
+        int res = 0;
+        while(K -- > 0 && iterator.hasNext()){
+            res += iterator.next().score;
         }
-        return sum;
+        return res;
     }
 
+    // O(logn) for remove in treeSet
     public void reset(int playerId) {
-        int preScore = map.get(playerId);
-        sorted.put(preScore, sorted.get(preScore) - 1);
-        if (sorted.get(preScore) == 0) {
-            sorted.remove(preScore);
+        Player cur = players.get(playerId);
+        scores.remove(cur);
+        cur.score = 0;
+    }
+
+    private class Player{
+        int id, score;
+        public Player(int id, int score){
+            this.id = id;
+            this.score = score;
         }
-        map.remove(playerId);
     }
 }
 

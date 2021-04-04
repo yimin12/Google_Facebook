@@ -28,14 +28,14 @@ public class ShortestBridge {
         int m = A.length, n = A[0].length;
         boolean[][] visited = new boolean[m][n];
         Queue<int[]> queue = new LinkedList<>();
-        boolean found = false;
+        boolean found = false; // find one island first, and let the other one to be unvisited, then use bfs to find the min distance
         for(int i = 0; i < m; i ++){
             if(found){
                 break;
             }
             for(int j = 0; j < n; j ++){
                 if(A[i][j] == 1){
-                    dfs(A, visited, queue, i, j);
+                    dfs(A, visited, queue, i, j); // add all the coordinates of island to queue and prepare it for bfs.
                     found = true;
                     break;
                 }
