@@ -61,11 +61,10 @@ public class RainSimulation {
         int cnt = 0, wetCnt = 0;
         while(wetCnt < 100){
             ++cnt;
-
             // get the position of raindrop
             double p = Math.random(); // generate 0 - 1
             double left = p - 0.005;
-            double right = p - 0.005;
+            double right = p + 0.005;
             if(left >= 0){
                 int index = (int)(left / 0.01) ; // update seg[i].right with left bound of rain
                 if(!sidewalk[index].isWet()){

@@ -53,4 +53,33 @@ public class ConstructBinaryTree {
         postIndex ++;
         return root;
     }
+
+
+    private Map<Integer, Integer> inorderMap = new HashMap<>();
+
+    public TreeNode constructFromPreInorder(int[] preorder, int[] inorder) {
+        if(preorder == null || inorder == null || preorder.length != inorder.length){
+            return null;
+        }
+        int n = preorder.length;
+        for(int i = 0; i < n; i ++){
+            inorderMap.put(inorder[i], i); // the index of root in inorder array
+        }
+        return construct(preorder, 0, 0, n-1);
+    }
+
+    private TreeNode construct(int[] pre, int cur, int start, int end){
+        TreeNode root = new TreeNode(pre[cur]);
+        if(start < end){
+            int rootIndex = inorderMap.get(pre[cur]);
+            if(rootIndex > start){
+                root.left = construct(pre, cur + 1, start, rootIndex - 1);
+            }
+            if(rootIndex < end){
+                root.right = construct(pre, cur + rootIndex - start + 1, rootIndex + 1, end);
+            }
+        }
+        return root;
+    }
+
 }

@@ -15,43 +15,54 @@ public class Bloomberg {
 
     // ---------------------------------------------------------------------------------topKFrequentWords
     class Pair {
-        String word;
-        int frequency;
-        public Pair(String word, int frequency) {
-            this.word = word;
-            this.frequency = frequency;
+        String key;
+        int value;
+        Pair(String key, int value) {
+            this.key = key;
+            this.value = value;
         }
     }
+    private Comparator<Pair> pairComparator = new Comparator<Pair>() {
+        public int compare(Pair left, Pair right) {
+            if (left.value != right.value) {
+                return left.value - right.value;
+            }
+            return right.key.compareTo(left.key);
+        }
+    };
+    // O(n + nlogk);
     public String[] topKFrequentWords(String[] words, int k) {
-        // write your code here
-        if(words == null || words.length == 0 || k == 0) {
+        if (k == 0) {
             return new String[0];
         }
-        PriorityQueue<Pair> q = new PriorityQueue<Pair>(k, new Comparator<Pair>(){
-            public int compare(Pair a, Pair b) {
-                if(a.frequency == b.frequency) {
-                    return a.word.compareTo(b.word);
-                }
-                return b.frequency - a.frequency;
-            }
-        });
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        for(int i = 0; i < words.length; i++) {
-            if(map.containsKey(words[i])) {
-                map.put(words[i], map.get(words[i]) + 1);
-            }
-            else {
-                map.put(words[i], 1);
+
+        HashMap<String, Integer> counter = new HashMap<>();
+        for (String word : words) {
+            if (counter.containsKey(word)) {
+                counter.put(word, counter.get(word) + 1);
+            } else {
+                counter.put(word, 1);
             }
         }
-        for(String word: map.keySet()) {
-            q.offer(new Pair(word, map.get(word)));
+
+        PriorityQueue<Pair> Q = new PriorityQueue<Pair>(k, pairComparator);
+        for (String word : counter.keySet()) {
+            Pair peak = Q.peek();
+            Pair newPair = new Pair(word, counter.get(word));
+            if (Q.size() < k) {
+                Q.add(newPair);
+            } else if (pairComparator.compare(newPair, peak) > 0) {
+                Q.poll();
+                Q.add(newPair);
+            }
         }
-        String[] res = new String[k];
-        for(int i = 0; i < k; i++) {
-            res[i] = q.poll().word;
+
+        String[] result = new String[k];
+        int index = k - 1;
+        while (!Q.isEmpty()) {
+            result[index --] = Q.poll().key;
         }
-        return res;
+        return result;
     }
 
     // ---------------------------------------------------------------------------------candyCrush
@@ -137,6 +148,7 @@ public class Bloomberg {
         return node;
     }
 
+    // ---------------------------------------------------------------------------------Flatten a Multilevel Doubly Linked List
     public Node flatten(Node head) {
         if( head == null) return head;
         // Pointer
@@ -273,6 +285,66 @@ public class Bloomberg {
         return dummy.next;
     }
 
+    // -----------------------------------------------------------------------------------word search
+    public boolean exist(char[][] board, String word) {
+        for(int i = 0; i < board.length; i++)
+            for(int j = 0; j < board[0].length; j++){
+                if(exist(board, i, j, word, 0))
+                    return true;
+            }
+        return false;
+    }
+    private boolean exist(char[][] board, int i, int j, String word, int ind){
+        if(ind == word.length()) return true;
+        if(i > board.length-1 || i <0 || j<0 || j >board[0].length-1 || board[i][j]!=word.charAt(ind))
+            return false;
+        board[i][j]='*';
+        boolean result =    exist(board, i-1, j, word, ind+1) ||
+                exist(board, i, j-1, word, ind+1) ||
+                exist(board, i, j+1, word, ind+1) ||
+                exist(board, i+1, j, word, ind+1);
+        board[i][j] = word.charAt(ind);
+        return result;
+    }
+
+    // -----------------------------------------------------------------------------------merge Interval
+    public int[][] merge(int[][] intervals) {
+        if(intervals == null || intervals.length == 0 || intervals[0].length == 0){
+            return intervals;
+        }
+        Arrays.sort(intervals, (a, b)->a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]);
+        List<List<Integer>> res = new ArrayList<>();
+        int curStart = 0, curEnd = 0;
+        for(int i = 0; i < intervals.length; i ++){
+            if(i == 0){
+                curStart = intervals[i][0];
+                curEnd = intervals[i][1];
+            } else {
+                if(intervals[i][0] <= curEnd){
+                    curEnd = Math.max(intervals[i][1], curEnd);
+                } else {
+                    List<Integer> cur = new ArrayList<>();
+                    cur.add(curStart);
+                    cur.add(curEnd);
+                    res.add(cur);
+                    curStart = intervals[i][0];
+                    curEnd = intervals[i][1];
+                }
+            }
+        }
+        List<Integer> cur = new ArrayList<>();
+        cur.add(curStart);
+        cur.add(curEnd);
+        res.add(cur);
+        int[][] merge = new int[res.size()][2];
+        for(int i = 0; i <merge.length; i ++){
+            cur = res.get(i);
+            merge[i][0] = cur.get(0);
+            merge[i][1] = cur.get(1);
+        }
+        return merge;
+    }
+
     // -----------------------------------------------------------------------------------kthMissingPositiveNumber
     public int findKthPositive(int[] A, int k) {
         int left = 0, right = A.length, m;
@@ -405,31 +477,61 @@ public class Bloomberg {
 
     // ------------------------------------------------------------------addTwoNumbers
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        Stack<Integer> s1 = new Stack<Integer>();
-        Stack<Integer> s2 = new Stack<Integer>();
-
-        while(l1 != null) {
-            s1.push(l1.val);
-            l1 = l1.next;
-        };
-        while(l2 != null) {
-            s2.push(l2.val);
-            l2 = l2.next;
+        // We will use sizes to understand which list's nodes should be frozen for a while.
+        int s1 = size(l1);
+        int s2 = size(l2);
+        ListNode resHead = null;
+        ListNode n = null;
+        while (l1 != null || l2 != null) {
+            int v1 = 0;
+            int v2 = 0;
+            if (s1 >= s2) {
+                v1 = l1 != null ? l1.val : 0;
+                l1 = l1.next;
+                s1--;
+            }
+            // Comparing with s1 + 1 since s1 might be decremented previously
+            if (s2 >= s1 + 1) {
+                v2 = l2 != null ? l2.val : 0;
+                l2 = l2.next;
+                s2--;
+            }
+            // Creating the resulting list in the reversed order.
+            n = new ListNode(v1 + v2);
+            n.next = resHead;
+            resHead = n;
         }
-
-        int sum = 0;
-        ListNode list = new ListNode(0);
-        while (!s1.empty() || !s2.empty()) {
-            if (!s1.empty()) sum += s1.pop();
-            if (!s2.empty()) sum += s2.pop();
-            list.val = sum % 10;
-            ListNode head = new ListNode(sum / 10);
-            head.next = list;
-            list = head;
-            sum /= 10;
+        int carry = 0;
+        resHead = null;
+        // Now, let's perform the normalization.
+        while (n != null) {
+            n.val += carry;
+            if (n.val >= 10) {
+                n.val = n.val % 10;
+                carry = 1;
+            } else {
+                carry = 0;
+            }
+            ListNode buf = n.next;
+            n.next = resHead;
+            resHead = n;
+            n = buf;
         }
+        if (carry > 0) {
+            n = new ListNode(1);
+            n.next = resHead;
+            resHead = n;
+        }
+        return resHead;
+    }
 
-        return list.val == 0 ? list.next : list;
+    private int size(ListNode l) {
+        int s = 0;
+        while (l != null) {
+            l = l.next;
+            s++;
+        }
+        return s;
     }
 
     // ------------------------------------------------------------------random10from7
@@ -443,102 +545,6 @@ public class Bloomberg {
                 return random % 10;
             }
         }
-    }
-
-    // ------------------------------------------------------------------courseSchedule
-    public int[] findOrder(int numCourses, int[][] prerequisites) {
-        // corner case
-        if(numCourses < 0){
-            return new int[0];
-        }
-        // if there is no prerequisites requirement
-        if(prerequisites == null){
-            int[] result = new int[numCourses];
-            for(int i = 0; i < numCourses; i++){
-                result[i] = i;
-            }
-        }
-        List[] courses = new ArrayList[numCourses];
-        int[] degree = new int[numCourses];
-        for(int i = 0; i < numCourses; i++){
-            courses[i] = new ArrayList<Integer>();
-        }
-        // construct the map
-        for(int i= 0; i < prerequisites.length; i++){
-            // inverted index
-            courses[prerequisites[i][1]].add(prerequisites[i][0]);
-            degree[prerequisites[i][0]]++;
-        }
-        Queue<Integer> queue = new LinkedList<Integer>();
-        for(int i = 0; i < degree.length; i++){
-            if(degree[i] == 0){
-                queue.offer(i);
-            }
-        }
-        int count = 0;
-        int[] order = new int[numCourses];
-        while(!queue.isEmpty()){
-            int course = (int)queue.poll();
-            order[count] = course;
-            count++;
-            int n = courses[course].size();
-            for(int i = n - 1; i >= 0; i--){
-                int nextCourse = (int)courses[course].get(i);
-                degree[nextCourse]--;
-                if(degree[nextCourse] == 0){
-                    queue.add(nextCourse);
-                }
-            }
-        }
-        if(count == numCourses){
-            return order;
-        }
-        return new int[0];
-    }
-
-    // ------------------------------------------------------------------wordBreak
-    public List<String> wordBreak(String s, List<String> wordDict) {
-        // memory search
-        List<String> res = new ArrayList<>();
-        if(s == null || s.length() == 0 || wordDict == null){
-            return res;
-        }
-        Set<String> set = toSet(wordDict);
-        Map<String, List<String>> memo = new HashMap<>();
-        return wordBreakHelper(memo, s, set);
-    }
-
-    // each possibilities should only be traversed once, just calculate how many possibilities.
-    // O(n^2)
-    private List<String> wordBreakHelper(Map<String, List<String>> memo, String s, Set<String> set){
-        if(memo.containsKey(s)){
-            return memo.get(s);
-        }
-        List<String> res = new ArrayList<>();
-        if(set.contains(s)){ // base case, contain the entire string
-            res.add(s);
-        }
-        // try to split the given string
-        for(int i = 1; i < s.length(); i ++){
-            // contains break or not break
-            String prefix = s.substring(0, i); // O(n)
-            if(set.contains(prefix)){
-                String suffix = s.substring(i, s.length());
-                for(String su : wordBreakHelper(memo, suffix, set)){
-                    res.add(prefix + " " + su);
-                }
-            }
-        }
-        memo.put(s, res);
-        return res;
-    }
-
-    private Set<String> toSet(List<String> words){
-        Set<String> set = new HashSet<>();
-        for(String s : words){
-            set.add(s);
-        }
-        return set;
     }
 
     // ------------------------------------------------------------------climbStairs
@@ -674,6 +680,24 @@ public class Bloomberg {
         }
         return count;
     }
+    // ------------------------------------------------------------------Find duplicate numbers
+    public int findDuplicate(int[] nums) {
+        if(nums == null || nums.length <= 1) return 0;
+        // try to find the circle in the array
+        int slow = nums[0];
+        int fast = nums[nums[0]];
+        while(slow != fast){
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        }
+        // find the entry point
+        fast = 0;
+        while(slow != fast){
+            fast = nums[fast];
+            slow = nums[slow];
+        }
+        return slow;
+    }
 
     // ------------------------------------------------------------------Remove duplicate letters
     public String removeDuplicateLetters(String s) {
@@ -705,7 +729,7 @@ public class Bloomberg {
         return sb.toString();
     }
 
-    // ------------------------------------------------------------------Remove duplicate letters with specific k adjacent
+    // ------------------------------------------------------------------Remove duplicate letters with specific k adjacent, 1D candicrush
     public String removeDuplicates(String s, int k) {
         int i = 0, n = s.length(), count[] = new int[n];
         char[] stack = s.toCharArray();
@@ -771,6 +795,24 @@ public class Bloomberg {
         return nums[left] + k;
     }
 
+    // ------------------------------------------------------------------ guess a number higher or lower
+    public int guessNumber(int n) {
+        int i = 1, j = n;
+        while(i < j) {
+            int mid = i + (j - i) / 2;
+            if(guess(mid) == 0) {
+                return mid;
+            } else if(guess(mid) == 1) {
+                i = mid + 1;
+            } else {
+                j = mid;
+            }
+        }
+        return i;
+    }
+    public int guess(int x){
+        return 0;
+    }
 }
 
 
@@ -871,6 +913,9 @@ class LRUCache<K, V> {
         node.next = node.prev = null;
         return node;
     }
+
+
+
 }
 
 // -----------------------------------------------------------------------------------Leaderboard

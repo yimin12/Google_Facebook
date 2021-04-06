@@ -43,4 +43,29 @@ public class AllPathsFromSourceToDestination {
         }
         return graph;
     }
+
+    // All paths from source to target
+    public List<List<Integer>> allPathsSourceTarget(int[][] graph) {
+        List<List<Integer>> res = new ArrayList<>();
+        if(graph == null || graph.length == 0 || graph[0].length == 0){
+            return res;
+        }
+        List<Integer> cur = new ArrayList<>();
+        dfs(graph, res, cur, 0, graph.length - 1);
+        return res;
+    }
+
+    private void dfs(int[][] graph, List<List<Integer>> res, List<Integer> cur, int from, int to){
+        if(from == to){
+            cur.add(from);
+            res.add(new ArrayList<>(cur));
+            cur.remove(cur.size() - 1);
+            return;
+        }
+        cur.add(from);
+        for(int nei : graph[from]){
+            dfs(graph, res, cur, nei, to);
+        }
+        cur.remove(cur.size() - 1);
+    }
 }

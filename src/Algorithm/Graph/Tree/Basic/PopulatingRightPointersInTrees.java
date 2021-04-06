@@ -31,11 +31,11 @@ public class PopulatingRightPointersInTrees {
 
     public Node connect(Node root) {
         if(root == null) return root;
-        helper(root);
+        dfs(root);
         return root;
     }
 
-    public void helper(Node root){
+    public void dfs(Node root){
         if(root == null) return; // if node is null just return
         if(root.left != null){ // if left is not null then make left point to the right child
             root.left.next = root.right;
@@ -61,7 +61,7 @@ public class PopulatingRightPointersInTrees {
                 return;
             }
         }
-        helper(root.right); // recur to the right child first, because children of left child are going to point to the children of the right one
-        helper(root.left); // finally recur to the left child
+        dfs(root.right); // recur to the right child first, because children of left child are going to point to the children of the right one
+        dfs(root.left); // finally recur to the left child
     }
 }
