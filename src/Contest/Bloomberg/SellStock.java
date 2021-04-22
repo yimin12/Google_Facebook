@@ -10,9 +10,14 @@ import java.util.PriorityQueue;
  *
  */
 public class SellStock {
+
+    /**
+     * Only can complete one transaction
+     * @param input
+     * @return
+     */
     // Q1: warm up
     public int bestSellI(int[] input) {
-        String a, b;
         if (input == null || input.length == 0) {
             return 0;
         }
