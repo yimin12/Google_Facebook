@@ -22,7 +22,7 @@ import java.util.List;
 public class UniqueBinarySearchTree {
 
     // Solution 1: dynamic programming, logic is similar with cutting rope
-    // dp[i] represent that there three nodes in the subtree.
+    // dp[i] represent that there i nodes in the subtree.
     // base case : dp[0] = 1, dp[1] = 1, dp[2] = dp[0]dp[1] + dp[1]dp[0], dp[3] = dp[0]dp[2] + dp[1]dp[1] + dp[2]dp[0]
     // induction rule: dp[i] = sum(dp[k]dp[i-k-1]) where k = 0 to (i-1)
     // The essential process is: to build a tree, we need to pick a root node, then we need to know how many possible
