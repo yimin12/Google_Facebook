@@ -9,7 +9,7 @@ import java.util.*;
  *   @Contact : hymlaucs@gmail.com
  *   @Date : 2020/9/14 15:59
  *   @Description :
-*	Examples:  	the right view =  [1, 3, 7, 8, 11]
+    *	Examples:  	the right view =  [1, 3, 7, 8, 11]
                    1
                 /    \
                2      3
@@ -202,33 +202,36 @@ public class ViewTree {
         List<List<Integer>> res = new ArrayList<>();
         if(root == null) return res;
         Deque<TreeNode> queue = new LinkedList<>();
-        queue.offerFirst(root);
-        int layer = 0;
+        queue.offer(root);
+        boolean flag = false;
         while(!queue.isEmpty()){
             int size = queue.size();
+            flag = !flag;
             List<Integer> cur = new ArrayList<>();
-            for(int i = 0; i < size; i++){
-                if(layer == 0){
-                    TreeNode tmp = queue.pollFirst();
-                    cur.add(tmp.val);
-                    if(tmp.right != null){
-                        queue.offerFirst(tmp.right);
+            for(int i = 0; i < size; i ++){
+                TreeNode node;
+                if(flag){
+                    node = queue.pollFirst();
+                }	else {
+                    node = queue.pollLast();
+                }
+                cur.add(node.val);
+                if(flag){
+                    if(node.left != null){
+                        queue.offerLast(node.left);
                     }
-                    if(tmp.left != null){
-                        queue.offerFirst(tmp.left);
+                    if(node.right != null){
+                        queue.offerLast(node.right);
                     }
                 } else {
-                    TreeNode tmp = queue.pollFirst();
-                    cur.add(tmp.val);
-                    if(tmp.right != null){
-                        queue.offerFirst(tmp.right);
+                    if(node.right != null){
+                        queue.offerFirst(node.right);
                     }
-                    if(tmp.left != null){
-                        queue.offerFirst(tmp.left);
+                    if(node.left != null){
+                        queue.offerFirst(node.left);
                     }
                 }
             }
-            layer = 1 - layer;
             res.add(cur);
         }
         return res;
@@ -314,5 +317,9 @@ public class ViewTree {
         if(rightBoundary){
             res.add(root.val);
         }
+    }
+
+    public static void main(String[] args) {
+
     }
 }

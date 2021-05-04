@@ -14,7 +14,7 @@ public class TopKFrequentWords {
     // As for map reduce, there totally two stages
     // step 1: map
     public static class Map{
-        public void map(String _, Document value, OutputCollector<String, Integer> output){
+        public void map(String _f, Document value, OutputCollector<String, Integer> output){
             // Output the results into the output buffer
             int id = value.id;
             String content = value.content;

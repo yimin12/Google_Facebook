@@ -7,6 +7,7 @@ import java.util.Queue;
 
 public class VerifyTree {
 
+
     /**
      * Is Binary Search tree
      */
@@ -177,4 +178,5 @@ public class VerifyTree {
         return (isTweeakedIdentical(one.left, two.left) && isTweeakedIdentical(one.right, two.right))
                 || (isTweeakedIdentical(one.left, two.right) && isTweeakedIdentical(one.right, two.left));
     }
+
 }
